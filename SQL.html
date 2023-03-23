@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>NashVille Data set</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+				<header id="header">
+					<a href="index.html" class="logo">Projects</a>
+				</header>
+
+			<!-- Nav -->
+				<nav id="nav">
+					<ul class="links">
+						<li><a href="index.html">library of Projects</a></li>
+						<li ><a href="Tableau.html">Tableau</a></li>
+						<li ><a href="Python_P.html">Python</a></li>
+						<li class="active"><a href="SQL.html">Sql</a></li>
+						<li><a href="Power BI.html">Power BI</a></li>
+					</ul>
+					<ul class="icons">
+						<li><a target="_blank" href="https://www.linkedin.com/in/juan-sebast%C3%ADan-vidal-90495a26a/" class="icon brands alt fa-linkedin"><span class="label">linkedin</span></a></li>
+						<li><a target="_blank" href="https://github.com/Juan-555" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+					</ul>
+				</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									
+									<h1>Data Cleaning<br />
+									using SQL Server</h1>
+									<hr>
+								</header>
+								<p>
+									<h2>The Data</h2>
+									<p>How the data looks like</p>
+									<div class="image main"><img src="images/sql_img.png" title="Excel" alt="" /></div>
+									<p><p>Looking at what we have, there're several thing we 
+										can do to make the process of working with this data 
+										easier. The column <b>"SoldAsVacant"</b> contains 
+										"Yes" and "No" but there are other values mixed in 
+										there. The columns <b>PropertyAddress</b> and 
+										<b>OwnerAddress</b> have in the same column the 
+										Property/Owner addres, the city and the state. There 
+										are a couple of <b>Nulls</b> and duplicated value. The
+										 column<b> "SaleDate"</b> is a <code>DATETIME</code>.</p>
+									
+									<h2>
+										Cleaning
+									</h2>
+
+									<p>
+										Change the column <b>'SaleDate'</b> from a <code>DATETIME</code> type to <code>Date</code> type.
+									
+<pre>
+<code>
+select SaleDate, CONVERT(DATE, SaleDate)
+from NashvilleHouse
+
+UPDATE NashvilleHouse
+set SaleDate = CONVERT(DATE, SaleDate)
+
+alter TABLE NashvilleHouse
+add SaleDateFixed DATE
+
+Update NashvilleHouse
+set SaleDateFixed = CONVERT(DATE, SaleDate)
+</code>	
+</pre>
+									
+									</p>
+									<p>Check for <b>Null</b> values in "PropertyAddress", after some looking, rows that 
+										contain <b>Null</b> values in 
+										the "PropertyAddress" share the same value in the "ParcelID" column.	
+									</p>
+									
+									
+									<!-- Valores Nulls  -->
+<pre>
+<code>
+select tablaA.ParcelID, tablaA.PropertyAddress,tablaB.ParcelID, tablaB.PropertyAddress, ISNULL(tablaA.PropertyAddress, tablaB.PropertyAddress) as PropertyAdressFixed
+from NashvilleHouse tablaA
+join NashvilleHouse tablaB
+<B>-- uno la tabla donde los id coincidan</B>
+on tablaA.ParcelID = tablaB.ParcelID
+<B>-- uso una columna donde los datos no coincidan </B>
+and tablaA.SaleDateFixed <> tablaB.SaleDateFixed
+where tablaA.PropertyAddress is null
+</code>
+</pre>
+<p> Update the values in <b>"PropertyAddress"</b> so they're the same as the duplicated.</p>
+
+<pre><code>Update TablaA
+set PropertyAddress = ISNULL(tablaA.PropertyAddress, tablaB.PropertyAddress)
+from NashvilleHouse TablaA
+join NashvilleHouse TablaB
+on TablaA.ParcelID = TablaB.ParcelID
+and TablaA.SaleDateFixed <> TablaB.SaleDateFixed
+where TablaA.PropertyAddress is null
+</code></pre>
+									<!-- Property adress-->
+									<p> Separe the address, city and state in <b>"PropertyAddress"</b> and <b>"OwnerAddress"</b></p>
+									
+<pre><code>select SUBSTRING(PropertyAddress, 1, CHARINDEX(',',PropertyAddress) -1) as Calle, SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress) + 1, Len(PropertyAddress)) as Ciudad
+from NashvilleHouse</code></pre>
+									
+									
+									<p>Add two new columns one for <b>"Address"</b> an one for 
+										<b>"City"</b>, both values are extrated from <b>"PropertyAddress"</b>.</p>
+									
+<pre><code>alter TABLE NashvilleHouse
+add Calle Nvarchar(255),
+add Ciudad Nvarchar(255)</code></pre>
+<pre><code>Update NashvilleHouse
+set Calle = SUBSTRING(PropertyAddress, 1, CHARINDEX(',',PropertyAddress) -1)
+
+update NashvilleHouse
+set Ciudad = SUBSTRING(PropertyAddress, Charindex(',',PropertyAddress) + 1, len(PropertyAddress))</code></pre>
+									<!-- Qwner adress-->
+									<p>Add columns and update values</p>
+									<pre><code>select PARSENAME(replace(OwnerAddress, ',', '.'), 1) as estado,
+PARSENAME(replace(OwnerAddress, ',', '.'), 2) as ciudad,
+PARSENAME(replace(OwnerAddress, ',', '.'), 3) as calle
+from NashvilleHouse</code></pre>
+
+<pre><code>alter table NashvilleHouse
+add DueñoEstado Nvarchar(255),
+DueñoCiudad Nvarchar(255),
+DueñoCalle Nvarchar(255)
+<b>-- alter</b>
+Update NashvilleHouse
+set DueñoEstado = PARSENAME(replace(OwnerAddress, ',', '.'), 1)
+
+Update NashvilleHouse
+set DueñoCiudad = PARSENAME(REPLACE(OwnerAddress, ',','.'), 2)
+
+Update NashvilleHouse
+set DueñoCalle = PARSENAME(REPLACE(OwnerAddress, ',', '.'), 3)</code></pre>
+									
+									
+									<!-- SoldasVacant --> 
+									<p>Look at the different values in <b>"SoldAsVacant"</b>, make a <code>CASE</code>
+										to update values, changing <b>"Y"</b> to <b>"Yes"</b> and <b>"N"</b> to <b>"No</b>".
+										</p>
+<pre><code>select distinct SoldAsVacant, count(SoldAsVacant)
+from NashvilleHouse
+group by SoldAsVacant
+
+<b>-- Arreglo</b>
+update NashvilleHouse
+set SoldAsVacant = CASE when SoldasVacant = 'Y' then 'Yes'
+					when SoldasVacant = 'N' then 'No'
+					else SoldAsVacant END
+</code></pre>
+									<p>Remove duplicates</p>
+<pre><code>with Duplicados as(
+select *, ROW_NUMBER() OVER (
+	Partition by ParcelID, SaleDateFixed, SalePrice, PropertyAddress, LegalReference
+order by ParcelID
+) as Row_Num
+from NashvilleHouse
+)
+--DELETE 
+--from Duplicados
+--where Row_Num > 1</code></pre>
+								<h2>Project</h2>
+								<p>Code <a target="_blank" href="https://github.com/Juan-555/Projects/blob/main/SQLQuery%20-%20Nashville%20Data%20Cleaning.sql"><b>(github)</b></a>
+									<br />
+								Original file link <a target="_blank" href="https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAlexTheAnalyst%2FPortfolioProjects%2Fmain%2FNashville%2520Housing%2520Data%2520for%2520Data%2520Cleaning.xlsx&wdOrigin=BROWSELINK"><b>(Excel)</b></a>
+								
+								</p>
+								<hr>		
+								</p>
+							</section>
+
+					</div>
+					
+				<!-- Footer -->
+				<footer id="footer">
+					<section class="split contact">
+						<section class="alt">
+							<h3>Location</h3>
+							<p>Buenos Aires, Arg</p>
+						</section>
+						<section>
+							<h3>Email</h3>
+							<p>juan.s.vidal555@gmail.com</p>
+						</section>
+						<section>
+							<h3>Socials</h3>
+							<ul class="icons alt">
+								<li><a target="_blank" href="https://www.linkedin.com/in/juan-sebast%C3%ADan-vidal-90495a26a/" class="icon brands alt fa-linkedin"><span class="label">linkedin</span></a></li>
+								<li><a target="_blank" href="https://github.com/Juan-555" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+							</ul>
+						</section>
+					</section>
+				</footer>
+				
+			<!-- Copyright -->
+				<div id="copyright">
+					<ul><li></li><li></li></ul>
+				</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

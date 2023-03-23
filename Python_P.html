@@ -1,0 +1,208 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Movie Data set </title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Projects</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">library of Projects</a></li>
+							<li ><a href="Tableau.html">Tableau</a></li>
+							<li class="active"><a href="Python_P.html">Python</a></li>
+							<li><a href="SQl.html">SQL</a></li>
+							<li><a href="Power BI.html">Power BI</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a target="_blank" href="https://www.linkedin.com/in/juan-sebast%C3%ADan-vidal-90495a26a/" class="icon brands alt fa-linkedin"><span class="label">linkedin</span></a></li>
+							<li><a target="_blank" href="https://github.com/Juan-555" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									
+									<h1><br />
+									Python</h1>
+									
+								</header>
+								<!--<div class="image main"><img src="images/pic01.jpg" alt="" /></div>-->
+                                <hr>
+                                <h2>Setup <br />
+                                </h2>
+								<p> First i begin by importing the libraries that i'm goint to use pandas, numpy,
+									matplotlib and seaborne.<br /></p>
+							  <p><pre>
+<code>import pandas as pd 
+import numpy as np 
+import seaborne as sns 
+import matplotlib.pyplot as plt 
+plt.style.use('ggplot') 
+from matplotlib.pyplot import figure 
+
+%matplotlib inline 
+plt.rcParams["figure.figsize"] = (12,8)<br /></code>
+                              </pre></p>
+                                    <p>The dataset is called "movies", i found it in kaggle.
+										This file contains columns such as "year","runtime" , "votes", "gross" among others, and several thousand
+										rows going from movies released in the 80 to movies from 2020.
+                                    </p>
+                                    <div class="image main"><img src="images/imagen_ilustrativa_1.png" alt="" /></div>
+                                <h2>
+                                Cleaning
+                                </h2>
+                                <p>Look for empty values in columns.<br /></p>
+                                <p><pre>
+<code>
+for column in MovieData.columns:
+perc = np.sum(MovieData[column].isnull())
+print('{} - {}'.format(column, perc))
+</code></pre>
+
+<pre>
+<code> 
+name - 0 
+rating - 77
+genre - 0
+year - 0
+released - 2
+score - 3
+votes - 3
+director - 0
+writer - 3
+star - 1
+country - 3
+budget - 2171
+gross - 189
+company - 17
+runtime - 4</code></pre>
+                           
+                                </p>
+                                <p>Checking at the result, i have many null fields in the columns
+									that i'll be using; so i'll create a copy of the dataset that contains
+									only the rows with usable values.<br />
+<pre>
+<code> #drop Null and NA
+Clean = MovieData.copy()
+Clean.dropna(subset=["budget"], inplace=True)
+Clean.dropna(subset=["gross", "votes"], inplace=True)</code></pre>
+                                   
+								Fix the decimal type values.
+
+<pre><code>
+Clean["votes"] = Clean["votes"].astype('int64') 
+Clean["gross"] = Clean["gross"].astype("int64") 
+Clean["budget"] = Clean["budget"].astype("int64") 
+</code></pre>
+                                </p>
+                                <h2>
+                                Graphs
+                                </h2>
+                                <p>
+								The graph uses "Budget" in the x axis and "Gross" in the y
+								axis, the dots are the "gross" and the line is the "Budget".
+                                <div class="image main"><img src="images/scatter.png" alt="" /></div></p>
+                                <p>We can see that there is a correlación between "Budget" and "Gross". </p>
+                                <div class="image main"><img src="images/heat1.png" alt="" /></div>
+                                <p>Looking at the heatmap we can also see that the column "votes" also affects the revenue.</p>
+                                <p>
+									For searching for a correlation using field such as director and company,
+									first i'm going to convert the the object type columns to numeric columns. <br />
+<pre>
+<code>
+df_correlation = Clean.copy() 
+for colum in df_correlation.columns:
+if(df_correlation[colum].dtype == "object" ):
+df_correlation[colum] = df_correlation[colum].astype("category")
+df_correlation[colum] = df_correlation[colum].cat.codes
+</code>
+</pre>
+                                <div class="image main"><img src="images/heat2.png" alt="" /></div></p>
+<pre>
+<code>df_correlation.corrwith(df_correlation["gross"])
+name        0.005966
+rating     -0.168814
+genre      -0.244380
+year        0.274264
+released    0.008614
+score       0.222143
+votes       0.614904
+director   -0.029366
+budget      0.740395
+gross       1.000000
+company     0.150233
+runtime     0.275596
+dtype: float64</code> 
+</pre>								
+									Taking a look at the overall result we can see that the director, the company
+									and even the name of the movie does seem to affect the budget and the gross.
+                                </p><p>
+                                    <h2>Project</h2> 
+                                    Final code here <b><a target="_blank" href="https://github.com/Juan-555/Projects/blob/main/Movies.ipynb">(github)</a></b> <br />
+                                    Original extracted from <b><a target="_blank" href="https://www.kaggle.com/datasets/danielgrijalvas/movies"> (Kaggle)</a></b>
+                                </p>
+                            </section>
+                            <hr>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section class="split contact">
+							<section class="alt">
+								<h3>Location</h3>
+								<p>Buenos Aires, Arg</p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p>juan.s.vidal555@gmail.com</p>
+							</section>
+							<section>
+								<h3>Socials</h3>
+								<ul class="icons alt">
+									<li><a target="_blank" href="https://www.linkedin.com/in/juan-sebast%C3%ADan-vidal-90495a26a/" class="icon brands alt fa-linkedin"><span class="label">linkedin</span></a></li>
+									<li><a target="_blank" href="https://github.com/Juan-555" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li></li><li></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
